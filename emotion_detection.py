@@ -17,12 +17,25 @@ def emotion_detector(text_to_analyze):
     try:
         response = requests.post(url, headers=headers, json=payload)
         if response.status_code == 200:
-            analysis = response.text
+            analysis = response.json()
         else:
             print(f'An ERROR with status code {response.status_code} occured.')
 
     except Exception as e:
         print(f'An ERROR occured: {e}')
+
+    # extract required set of emotions
+    analysis = analysis['emotionPredictions'][0]['emotion']
+
+    # identify dominant emotion
+    max_rating = 0
+    dominant_emotion = ""
+
+    for key, value in analysis.items():
+        if value > max_rating:
+            max_rating = value
+            dominant_emotion = key
+    analysis['dominant_emotion'] = dominant_emotion
 
     # return the models feedback
     return analysis
