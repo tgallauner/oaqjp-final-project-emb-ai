@@ -1,14 +1,16 @@
-from flask import Flask, request
+from flask import Flask, request, render_template
 from EmotionDetection import emotion_detector
 
 app = Flask(__name__)
 
-def main():
-    pass
+@app.route('/')
+def render_index_page():
+    return render_template('index.html')
 
-@app.route('/emotionDetector', methods=['POST'])
+
+@app.route('/emotionDetector', methods=['GET'])
 def detect_emotion():
-    input_text = request.json.get('text', '')
+    input_text = request.args.get('textToAnalyze', '')
 
     if not input_text:
         return 'ERROR: No input provided!', 400
@@ -17,14 +19,18 @@ def detect_emotion():
 
     # build message
     message = 'For the given statement, the system response is '
+    first_key = True
     for key, value in result.items():
         if key != 'dominant_emotion':
-            message = message + f'\'{key}\': ' + str(value) + ', '
+            if not first_key:
+                message = message + ', '
+            message = message + f'\'{key}\': ' + str(value)
+            first_key = False
         else:
-            message = message + '\b\b. The dominant emotion is ' + value + '.'
+            message = message + '. The dominant emotion is ' + value + '.'
 
     return message
 
 
 if __name__ == '__main__':
-    app.run(host='127.0.0.1', port=5000, debug=True)
+    app.run(port=5000, debug=True)
