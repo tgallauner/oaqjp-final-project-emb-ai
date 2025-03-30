@@ -2,6 +2,15 @@
 import requests
 
 
+def error_response():
+    return {'anger': None,
+            'disgust': None,
+            'fear': None,
+            'joy': None,
+            'sadness': None,
+            'dominant_emotion': None,} 
+
+
 def emotion_detector(text_to_analyze):
     # define url, headers and payload
     url = r'https://sn-watson-emotion.labs.skills.network/v1/watson.runtime.nlp.v1/NlpService/EmotionPredict'
@@ -18,11 +27,15 @@ def emotion_detector(text_to_analyze):
         response = requests.post(url, headers=headers, json=payload)
         if response.status_code == 200:
             analysis = response.json()
+        elif response.status_code == 400:
+            return error_response()
         else:
             print(f'An ERROR with status code {response.status_code} occured.')
+            return error_response()
 
     except Exception as e:
         print(f'An ERROR occured: {e}')
+        return error_response()
 
     # extract required set of emotions
     analysis = analysis['emotionPredictions'][0]['emotion']

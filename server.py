@@ -12,10 +12,11 @@ def render_index_page():
 def detect_emotion():
     input_text = request.args.get('textToAnalyze', '')
 
-    if not input_text:
-        return 'ERROR: No input provided!', 400
-
     result = emotion_detector(input_text)
+
+    # check for invalid response
+    if result['dominant_emotion'] is None:
+        return 'Invalid text! Please try again!'
 
     # build message
     message = 'For the given statement, the system response is '
